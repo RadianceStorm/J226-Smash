@@ -1,0 +1,63 @@
+[gd_scene load_steps=7 format=3 uid="uid://c86gqcrpt2atc"]
+
+[ext_resource type="Script" uid="uid://wctbd6xtpslg" path="res://scenes/fighters/dummy_fighter.gd" id="1_x4cp5"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1foxp"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_x4cp5"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x4cp5"]
+resource_name = "DebugMat_ECB"
+transparency = 1
+albedo_color = Color(0, 1, 1, 0.356863)
+
+[sub_resource type="BoxMesh" id="BoxMesh_d3q2y"]
+material = SubResource("StandardMaterial3D_x4cp5")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_x4cp5"]
+size = Vector3(1.5, 1.25, 1)
+
+[node name="dummyFighter" type="CharacterBody3D" groups=["fighter"]]
+script = ExtResource("1_x4cp5")
+
+[node name="PlayerHitbox" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_1foxp")
+debug_color = Color(0, 1, 0, 1)
+
+[node name="PlayerMesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_x4cp5")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="EnvCollisionBox" type="Node3D" parent="."]
+
+[node name="top" type="Marker3D" parent="EnvCollisionBox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="left" type="Marker3D" parent="EnvCollisionBox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0, 0)
+
+[node name="right" type="Marker3D" parent="EnvCollisionBox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0, 0)
+
+[node name="bottom" type="Marker3D" parent="EnvCollisionBox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+
+[node name="ECB_DebugMesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_d3q2y")
+
+[node name="LedgeGrabRight" type="Area3D" parent="."]
+monitorable = false
+
+[node name="hitbox" type="CollisionShape3D" parent="LedgeGrabRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.75, 1, 0)
+shape = SubResource("BoxShape3D_x4cp5")
+debug_color = Color(0.827451, 0.835294, 0.0313726, 0.823529)
+
+[node name="LedgeGrabLeft" type="Area3D" parent="."]
+monitorable = false
+
+[node name="hitbox" type="CollisionShape3D" parent="LedgeGrabLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.75, 1, 0)
+shape = SubResource("BoxShape3D_x4cp5")
+debug_color = Color(0.827451, 0.835294, 0.0313726, 0.823529)
