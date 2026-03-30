@@ -1,7 +1,7 @@
 extends StaticBody3D
 
 @export var is_solid: bool = true
-@export var ledge_points: Array[Marker3D] = [$ledgePointLeft, $ledgePointRight]
+@export var ledge_points: Array[Marker3D] = [$LedgePointLeft, $LedgePointRight]
 @export var ledge_facing: Array[int] = [1, -1]
 
 func _ready():

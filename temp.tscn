@@ -1,14 +1,14 @@
-[gd_scene load_steps=4 format=3 uid="uid://dddgeg421d1yi"]
+[gd_scene format=3 uid="uid://dddgeg421d1yi"]
 
-[ext_resource type="PackedScene" uid="uid://c86gqcrpt2atc" path="res://scenes/fighters/dummyFighter.tscn" id="1_ufh25"]
-[ext_resource type="PackedScene" uid="uid://bbgy4xp2rhk84" path="res://scenes/stages/stage_Test.tscn" id="2_k81e3"]
+[ext_resource type="PackedScene" uid="uid://c86gqcrpt2atc" path="res://scenes/fighters/fighter.tscn" id="1_ufh25"]
+[ext_resource type="PackedScene" uid="uid://bbgy4xp2rhk84" path="res://scenes/stages/Stage.tscn" id="2_k81e3"]
 [ext_resource type="PackedScene" uid="uid://dpdkeowkkv0mo" path="res://scenes/camera/camera.tscn" id="3_k81e3"]
 
-[node name="Temp" type="Node3D"]
+[node name="Temp" type="Node3D" unique_id=1160012762]
 
-[node name="StageTest" parent="." instance=ExtResource("2_k81e3")]
+[node name="StageTest" parent="." unique_id=1503120814 instance=ExtResource("2_k81e3")]
 
-[node name="dummyFighter" parent="." instance=ExtResource("1_ufh25")]
+[node name="dummyFighter" parent="." unique_id=458329245 instance=ExtResource("1_ufh25")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00362396, 5.15815, -0.0716553)
 
-[node name="Camera" parent="." instance=ExtResource("3_k81e3")]
+[node name="Camera" parent="." unique_id=1093603751 instance=ExtResource("3_k81e3")]

@@ -7,7 +7,7 @@ var target: Node3D
 func _ready():
 	target = get_tree().get_first_node_in_group("fighter")
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	if target == null:
 		return
 	

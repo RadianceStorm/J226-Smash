@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="FighterStats" format=3 uid="uid://cf7sla5dvbqkh"]
+
+[ext_resource type="Script" uid="uid://bt55emepu02y2" path="res://scenes/fighters/fighter_stats.gd" id="1_k6ubr"]
+
+[resource]
+resource_name = "Fighter Base"
+script = ExtResource("1_k6ubr")
+jump_velocity = 18.0
+short_hop_velocity = 14.0
+double_jump_velocity = 16.0
