@@ -159,7 +159,7 @@ func _state_airborne(delta: float) -> void:
 	vel.x = move_toward(vel.x, target_x, stats.air_speed * stats.air_acceleration)
 
 	# Fastfall
-	if _down_tapped and not fastfalling and vel.y <= 0.0:
+	if _down_tapped and not fastfalling and vel.y <= 0.0 and not _dropping_through:
 		fastfalling = true
 		print("[FASTFALL] Started")
 
@@ -245,7 +245,8 @@ func _apply_move() -> void:
 
 	if holding_down and grounded:
 		_dropping_through = true
-	if _dropping_through and grounded:
+		_down_tapped = false
+	elif _dropping_through and grounded and not holding_down:
 		_dropping_through = false
 
 	if _dropping_through or holding_down or moving_up:
@@ -258,6 +259,15 @@ func _apply_move() -> void:
 	velocity = vel
 	move_and_slide()
 	vel = velocity
+
+# Soft platforms have no horizontal collision — restore x vel if sideways hit
+	for i in get_slide_collision_count():
+		var col := get_slide_collision(i)
+		var collider := col.get_collider()
+		if collider and collider.get_collision_layer_value(2):
+			if abs(col.get_normal().x) > 0.7:
+				vel.x = velocity.x  # restore pre-slide horizontal velocity
+				velocity = vel
 
 	grounded     = is_on_floor()
 	floor_normal = get_floor_normal() if grounded else Vector3.UP

@@ -17,7 +17,7 @@ size = Vector3(20, 4, 5)
 size = Vector3(5, 1, 1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_otbg8"]
-size = Vector3(5, 1, 1)
+size = Vector3(5, 0.01, 1)
 
 [node name="StageTest" type="Node3D" unique_id=1592352287]
 script = ExtResource("1_ed26r")
@@ -54,6 +54,7 @@ ledge_points = []
 mesh = SubResource("BoxMesh_dhi2t")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/SoftPlatform" unique_id=1764925303]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.495, 0)
 shape = SubResource("BoxShape3D_otbg8")
 
 [node name="StageProps" type="Node3D" parent="." unique_id=831564609]

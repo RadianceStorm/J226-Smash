@@ -8,14 +8,6 @@ size = Vector3(1, 2, 1)
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_x4cp5"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x4cp5"]
-resource_name = "DebugMat_ECB"
-transparency = 1
-albedo_color = Color(0, 1, 1, 0.356863)
-
-[sub_resource type="BoxMesh" id="BoxMesh_d3q2y"]
-material = SubResource("StandardMaterial3D_x4cp5")
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_x4cp5"]
 size = Vector3(1.5, 1.25, 1)
 
@@ -33,9 +25,6 @@ debug_color = Color(0, 1, 0, 1)
 mesh = SubResource("CapsuleMesh_x4cp5")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=276435900]
-
-[node name="ECB_DebugMesh" type="MeshInstance3D" parent="." unique_id=1228738983]
-mesh = SubResource("BoxMesh_d3q2y")
 
 [node name="LedgeGrabRight" type="Area3D" parent="." unique_id=544433857]
 monitorable = false
