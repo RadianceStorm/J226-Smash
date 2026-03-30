@@ -3,7 +3,8 @@
 [ext_resource type="Script" uid="uid://bgdl3016aokg3" path="res://scenes/fighters/fighter_base.gd" id="1_txtt3"]
 [ext_resource type="Resource" uid="uid://cf7sla5dvbqkh" path="res://scenes/fighters/stats_olive.tres" id="2_vqgm3"]
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1foxp"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_vqgm3"]
+size = Vector3(1, 2, 1)
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_x4cp5"]
 
@@ -19,11 +20,13 @@ material = SubResource("StandardMaterial3D_x4cp5")
 size = Vector3(1.5, 1.25, 1)
 
 [node name="Fighter" type="CharacterBody3D" unique_id=2049118510 groups=["fighter"]]
+collision_layer = 4
+collision_mask = 3
 script = ExtResource("1_txtt3")
 stats = ExtResource("2_vqgm3")
 
 [node name="HitboxRoot" type="CollisionShape3D" parent="." unique_id=375054153]
-shape = SubResource("CapsuleShape3D_1foxp")
+shape = SubResource("BoxShape3D_vqgm3")
 debug_color = Color(0, 1, 0, 1)
 
 [node name="Mesh" type="MeshInstance3D" parent="." unique_id=1660784609]

@@ -8,3 +8,6 @@ script = ExtResource("1_k6ubr")
 jump_velocity = 18.0
 short_hop_velocity = 14.0
 double_jump_velocity = 16.0
+ecb_half_width = 0.5
+ecb_half_height = 1.0
+ecb_z_extent = 1.0

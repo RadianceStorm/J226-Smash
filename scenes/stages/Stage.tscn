@@ -45,6 +45,8 @@ script = ExtResource("4_otbg8")
 
 [node name="SoftPlatform" type="StaticBody3D" parent="Geometry" unique_id=1670806641 node_paths=PackedStringArray("ledge_points")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 5, 0)
+collision_layer = 2
+collision_mask = 0
 script = ExtResource("3_otxmh")
 ledge_points = []
 
