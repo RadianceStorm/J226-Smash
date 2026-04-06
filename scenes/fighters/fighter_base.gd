@@ -14,6 +14,18 @@
 class_name FighterBase
 extends CharacterBody3D
 
+# --- Hitbox Sides ---
+@onready var _collision_shape: CollisionShape3D = $HitboxRoot
+
+func _get_box_edges() -> Dictionary:
+	var shape := _collision_shape.shape as BoxShape3D
+	var origin := _collision_shape.global_position
+	return {
+		"left":   origin.x - shape.size.x / 2.0,
+		"right":  origin.x + shape.size.x / 2.0,
+		"bottom": origin.y - shape.size.y / 2.0,
+	}
+
 # --- Exports ---
 @export var stats: FighterStats
 
@@ -75,12 +87,17 @@ const _BALLOON_TABLE: Array[Vector2] = [
 	Vector2(120, 60),
 ]
 
-# --- Startup ---
+var _soft_platforms: Array = []
+
 func _ready() -> void:
 	double_jumps_remaining = stats.max_double_jumps
 	floor_stop_on_slope    = true
 	floor_max_angle        = deg_to_rad(46)
 	add_to_group("fighter")
+	call_deferred("_collect_soft_platforms")
+
+func _collect_soft_platforms() -> void:
+	_soft_platforms = get_tree().get_nodes_in_group("soft_platforms")
 
 # --- Main Loop ---
 func _physics_process(delta: float) -> void:
@@ -235,27 +252,40 @@ func _launch_jump() -> void:
 func _apply_move() -> void:
 	var was_grounded := grounded
 
-	# --- Soft platform logic ---
-	# Pass through soft platforms if:
-	#   - holding down, OR
-	#   - moving upward (jumping through from below)
 # --- Soft platform logic ---
-	var holding_down := Input.is_action_pressed("move_down")
-	var moving_up    := vel.y > 0.5
 
-	if holding_down and grounded:
-		_dropping_through = true
-		_down_tapped = false
-	elif _dropping_through and grounded and not holding_down:
-		_dropping_through = false
+	var holding_down  := Input.is_action_pressed("move_down")
 
-	if _dropping_through or holding_down or moving_up:
-		set_collision_mask_value(2, false)
+	var edges := _get_box_edges()
+
+	var should_collide := true
+	if holding_down:
+		should_collide = false
 	else:
-		set_collision_mask_value(2, true)
+		for platform in _soft_platforms:
+			var p_top: float = platform.top_y
+			var p_left: float = platform.left_x
+			var p_right: float = platform.right_x
+			if edges.bottom < p_top:
+				should_collide = false
+				break
+			if edges.left > p_right:
+				should_collide = false
+				break
+			if edges.right < p_left:
+				should_collide = false
+				break
 
-	floor_snap_length = 0.15 if (state == State.GROUNDED or state == State.JUMPSQUAT) else 0.0
+	set_collision_mask_value(2, should_collide)
 
+	var above_any_soft := false
+	for platform in _soft_platforms:
+		break
+
+	set_collision_mask_value(2, above_any_soft and not holding_down)
+
+# --- Move and Slide ---
+	var pre_move_x := global_position.x
 	velocity = vel
 	move_and_slide()
 	vel = velocity
@@ -263,11 +293,11 @@ func _apply_move() -> void:
 # Soft platforms have no horizontal collision — restore x vel if sideways hit
 	for i in get_slide_collision_count():
 		var col := get_slide_collision(i)
-		var collider := col.get_collider()
-		if collider and collider.get_collision_layer_value(2):
+		if col.get_collider().get_collision_layer_value(2):
 			if abs(col.get_normal().x) > 0.7:
-				vel.x = velocity.x  # restore pre-slide horizontal velocity
-				velocity = vel
+				global_position.x = pre_move_x
+				vel.x = velocity.x
+				break
 
 	grounded     = is_on_floor()
 	floor_normal = get_floor_normal() if grounded else Vector3.UP
