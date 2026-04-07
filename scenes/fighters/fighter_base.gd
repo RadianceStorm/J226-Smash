@@ -17,7 +17,7 @@ extends CharacterBody3D
 # --- Hitbox Sides ---
 @onready var _collision_shape: CollisionShape3D = $HitboxRoot
 
-func _get_box_edges() -> Dictionary:
+func _get_hitbox_bounds() -> Dictionary:
 	var shape := _collision_shape.shape as BoxShape3D
 	var origin := _collision_shape.global_position
 	return {
@@ -53,7 +53,6 @@ var facing: int = 1        # 1 = right, -1 = left. Only updates on ground.
 # --- Aerial State ---
 var double_jumps_remaining: int = 0
 var fastfalling: bool = false
-var _dropping_through: bool = false
 
 # --- Jumpsquat ---
 var _jumpsquat_frames_remaining: int = 0
@@ -176,7 +175,7 @@ func _state_airborne(delta: float) -> void:
 	vel.x = move_toward(vel.x, target_x, stats.air_speed * stats.air_acceleration)
 
 	# Fastfall
-	if _down_tapped and not fastfalling and vel.y <= 0.0 and not _dropping_through:
+	if _down_tapped and not fastfalling and vel.y <= 0.0:
 		fastfalling = true
 		print("[FASTFALL] Started")
 
@@ -252,52 +251,10 @@ func _launch_jump() -> void:
 func _apply_move() -> void:
 	var was_grounded := grounded
 
-# --- Soft platform logic ---
-
-	var holding_down  := Input.is_action_pressed("move_down")
-
-	var edges := _get_box_edges()
-
-	var should_collide := true
-	if holding_down:
-		should_collide = false
-	else:
-		for platform in _soft_platforms:
-			var p_top: float = platform.top_y
-			var p_left: float = platform.left_x
-			var p_right: float = platform.right_x
-			if edges.bottom < p_top:
-				should_collide = false
-				break
-			if edges.left > p_right:
-				should_collide = false
-				break
-			if edges.right < p_left:
-				should_collide = false
-				break
-
-	set_collision_mask_value(2, should_collide)
-
-	var above_any_soft := false
-	for platform in _soft_platforms:
-		break
-
-	set_collision_mask_value(2, above_any_soft and not holding_down)
-
-# --- Move and Slide ---
-	var pre_move_x := global_position.x
+	floor_snap_length = 0.15 if (state == State.GROUNDED or state == State.JUMPSQUAT) else 0.0
 	velocity = vel
 	move_and_slide()
 	vel = velocity
-
-# Soft platforms have no horizontal collision — restore x vel if sideways hit
-	for i in get_slide_collision_count():
-		var col := get_slide_collision(i)
-		if col.get_collider().get_collision_layer_value(2):
-			if abs(col.get_normal().x) > 0.7:
-				global_position.x = pre_move_x
-				vel.x = velocity.x
-				break
 
 	grounded     = is_on_floor()
 	floor_normal = get_floor_normal() if grounded else Vector3.UP
@@ -309,6 +266,36 @@ func _apply_move() -> void:
 		left_ground.emit()
 		print("[GROUND] Left ground")
 		_set_state(State.AIRBORNE)
+
+	# Soft platform mask set AFTER move_and_slide — applies to next frame
+	var holding_down := Input.is_action_pressed("move_down")
+	var bounds := _get_hitbox_bounds()
+
+	var should_collide := true
+	if holding_down:
+		should_collide = false
+	else:
+		for platform in _soft_platforms:
+			var p_top:   float = platform.top_y
+			var p_left:  float = platform.left_x
+			var p_right: float = platform.right_x
+			if bounds.bottom < p_top:
+				should_collide = false
+				floor_snap_length = 0.0
+				break
+			if bounds.left > p_right:
+				should_collide = false
+				break
+			if bounds.right < p_left:
+				should_collide = false
+				break
+			print("bounds.bottom: ", snappedf(bounds.bottom, 0.001), " | p_top: ", snappedf(p_top, 0.001), " | bottom < top: ", bounds.bottom < p_top)
+			print("bounds.left: ", snappedf(bounds.left, 0.001), " | p_right: ", snappedf(p_right, 0.001), " | left > right: ", bounds.left > p_right)
+			print("bounds.right: ", snappedf(bounds.right, 0.001), " | p_left: ", snappedf(p_left, 0.001), " | right < left: ", bounds.right < p_left)
+			print("should_collide result: ", should_collide)
+
+	print("MASK SET TO: ", should_collide)
+	set_collision_mask_value(2, should_collide)
 
 func _on_land() -> void:
 	fastfalling              = false
@@ -394,4 +381,10 @@ func _debug_print() -> void:
 		str(facing),
 		str(double_jumps_remaining),
 		str(vel.round())
+	])
+	var bounds := _get_hitbox_bounds()
+	print("Hitbox — left: %s | right: %s | bottom: %s" % [
+		str(snappedf(bounds.left,   0.001)),
+		str(snappedf(bounds.right,  0.001)),
+		str(snappedf(bounds.bottom, 0.001)),
 	])
