@@ -1,17 +1,6 @@
-# fighter_base.gd
-# Core fighter controller. Extend this class for individual characters.
-#
-# SCENE REQUIREMENTS:
-#   - CharacterBody3D root node
-#   - CollisionShape3D child with a BoxShape3D (width = ecb_half_width*2, height = ecb_half_height*2)
-#   - FighterStats resource assigned to 'stats' export
-#
-# COLLISION LAYER CONVENTION (Project Settings -> Layer Names -> 3D Physics):
-#   Layer 1 : solid_platforms
-#   Layer 2 : soft_platforms
-#   Layer 3 : fighters
-
 class_name FighterBase
+# For individual fighters, extend this class
+
 extends CharacterBody3D
 
 # --- Hitbox Sides ---
@@ -250,6 +239,8 @@ func _launch_jump() -> void:
 # --- Movement Resolution ---
 func _apply_move() -> void:
 	var was_grounded := grounded
+	
+	_update_soft_platform_mask()
 
 	floor_snap_length = 0.15 if (state == State.GROUNDED or state == State.JUMPSQUAT) else 0.0
 	velocity = vel
@@ -266,8 +257,10 @@ func _apply_move() -> void:
 		left_ground.emit()
 		print("[GROUND] Left ground")
 		_set_state(State.AIRBORNE)
+		
+	_update_soft_platform_mask()
 
-	# Soft platform mask set AFTER move_and_slide — applies to next frame
+func _update_soft_platform_mask() -> void:
 	var holding_down := Input.is_action_pressed("move_down")
 	var bounds := _get_hitbox_bounds()
 
@@ -289,13 +282,9 @@ func _apply_move() -> void:
 			if bounds.right < p_left:
 				should_collide = false
 				break
-			print("bounds.bottom: ", snappedf(bounds.bottom, 0.001), " | p_top: ", snappedf(p_top, 0.001), " | bottom < top: ", bounds.bottom < p_top)
-			print("bounds.left: ", snappedf(bounds.left, 0.001), " | p_right: ", snappedf(p_right, 0.001), " | left > right: ", bounds.left > p_right)
-			print("bounds.right: ", snappedf(bounds.right, 0.001), " | p_left: ", snappedf(p_left, 0.001), " | right < left: ", bounds.right < p_left)
-			print("should_collide result: ", should_collide)
 
-	print("MASK SET TO: ", should_collide)
 	set_collision_mask_value(2, should_collide)
+
 
 func _on_land() -> void:
 	fastfalling              = false

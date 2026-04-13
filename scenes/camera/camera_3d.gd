@@ -13,4 +13,4 @@ func _physics_process(_delta):
 	
 	global_position = target.global_position + offset
 	look_at(target.global_position)
-# Rough approximation of a camera, suitable for testing.
+# Rough approximation of a camera for testing. It sucks but I will interpolate it later and all that fancy stuff.

@@ -6,4 +6,5 @@ extends Node3D
 @export var bottom_blast_y: float = -40.0
 
 func _ready():
-	print_tree_pretty()
+	print("")
+	#print_tree_pretty()
