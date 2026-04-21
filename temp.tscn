@@ -9,6 +9,6 @@
 [node name="StageTest" parent="." unique_id=1503120814 instance=ExtResource("2_k81e3")]
 
 [node name="Fighter" parent="." unique_id=458329245 instance=ExtResource("1_ufh25")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00362396, 5.15815, -0.0716553)
+position = Vector2(-0.00362396, 5.15815)
 
 [node name="Camera" parent="." unique_id=1093603751 instance=ExtResource("3_k81e3")]

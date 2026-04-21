@@ -6,30 +6,29 @@
 [ext_resource type="Script" uid="uid://2qoim88c8ecq" path="res://scenes/stages/platform_soft.gd" id="3_otxmh"]
 [ext_resource type="Script" uid="uid://bw6ffwmo3x4xm" path="res://scenes/stages/ledge_point_right.gd" id="4_otbg8"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_kcd60"]
-size = Vector3(20, 4, 5)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_p75cs"]
+size = Vector2(2000, 400)
 
 [sub_resource type="BoxMesh" id="BoxMesh_otxmh"]
 lightmap_size_hint = Vector2i(129, 116)
 size = Vector3(20, 4, 5)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ej7ts"]
+size = Vector2(500, 100)
+
 [sub_resource type="BoxMesh" id="BoxMesh_dhi2t"]
 size = Vector3(5, 1, 1)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_otbg8"]
-size = Vector3(5, 0.01, 1)
 
 [node name="StageTest" type="Node3D" unique_id=1592352287]
 script = ExtResource("1_ed26r")
 
 [node name="Geometry" type="Node3D" parent="." unique_id=34414134]
 
-[node name="MainPlatform" type="StaticBody3D" parent="Geometry" unique_id=110918012 node_paths=PackedStringArray("ledge_points")]
+[node name="MainPlatform" type="StaticBody2D" parent="Geometry" unique_id=1644324848]
 script = ExtResource("2_kcd60")
-ledge_points = []
 
-[node name="MainPlatformCollision" type="CollisionShape3D" parent="Geometry/MainPlatform" unique_id=599901232]
-shape = SubResource("BoxShape3D_kcd60")
+[node name="MainPlatformCollision" type="CollisionShape2D" parent="Geometry/MainPlatform" unique_id=1588088963]
+shape = SubResource("RectangleShape2D_p75cs")
 debug_color = Color(0.67451, 0.694118, 0.701961, 0.419608)
 
 [node name="MainPlatformMesh" type="MeshInstance3D" parent="Geometry/MainPlatform" unique_id=629130548]
@@ -43,19 +42,18 @@ script = ExtResource("3_dhi2t")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.5, 0)
 script = ExtResource("4_otbg8")
 
-[node name="SoftPlatform" type="StaticBody3D" parent="Geometry" unique_id=1670806641 node_paths=PackedStringArray("ledge_points")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 5, 0)
+[node name="SoftPlatform" type="StaticBody2D" parent="Geometry" unique_id=669965720]
+position = Vector2(5, 5)
 collision_layer = 2
 collision_mask = 0
 script = ExtResource("3_otxmh")
-ledge_points = []
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Geometry/SoftPlatform" unique_id=1182341992]
+position = Vector2(0, 0.4949999)
+shape = SubResource("RectangleShape2D_ej7ts")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Geometry/SoftPlatform" unique_id=1450649517]
 mesh = SubResource("BoxMesh_dhi2t")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/SoftPlatform" unique_id=1764925303]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.495, 0)
-shape = SubResource("BoxShape3D_otbg8")
 
 [node name="StageProps" type="Node3D" parent="." unique_id=831564609]
 

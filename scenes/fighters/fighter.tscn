@@ -3,41 +3,42 @@
 [ext_resource type="Script" uid="uid://bgdl3016aokg3" path="res://scenes/fighters/fighter_base.gd" id="1_txtt3"]
 [ext_resource type="Resource" uid="uid://cf7sla5dvbqkh" path="res://scenes/fighters/stats_olive.tres" id="2_vqgm3"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_vqgm3"]
-size = Vector3(1, 2, 1)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_txtt3"]
+size = Vector2(100, 200)
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_x4cp5"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_x4cp5"]
-size = Vector3(1.5, 1.25, 1)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vqgm3"]
+size = Vector2(150, 125)
 
-[node name="Fighter" type="CharacterBody3D" unique_id=2049118510 groups=["fighter"]]
+[node name="Fighter" type="CharacterBody2D" unique_id=373737658 groups=["fighter"]]
 collision_layer = 4
 collision_mask = 3
 script = ExtResource("1_txtt3")
 stats = ExtResource("2_vqgm3")
+metadata/_custom_type_script = "uid://bgdl3016aokg3"
 
-[node name="HitboxRoot" type="CollisionShape3D" parent="." unique_id=375054153]
-shape = SubResource("BoxShape3D_vqgm3")
-debug_color = Color(0, 1, 0, 1)
+[node name="HitboxRoot" type="CollisionShape2D" parent="." unique_id=2086876980]
+shape = SubResource("RectangleShape2D_txtt3")
+debug_color = Color(1, 1, 1, 1)
 
 [node name="Mesh" type="MeshInstance3D" parent="." unique_id=1660784609]
 mesh = SubResource("CapsuleMesh_x4cp5")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=276435900]
 
-[node name="LedgeGrabRight" type="Area3D" parent="." unique_id=544433857]
+[node name="LedgeGrabRight" type="Area2D" parent="." unique_id=791052568]
 monitorable = false
 
-[node name="Shape" type="CollisionShape3D" parent="LedgeGrabRight" unique_id=785444093]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.75, 1, 0)
-shape = SubResource("BoxShape3D_x4cp5")
-debug_color = Color(0.827451, 0.835294, 0.0313726, 0.823529)
+[node name="Shape" type="CollisionShape2D" parent="LedgeGrabRight" unique_id=2068545055]
+position = Vector2(75, -62.5)
+shape = SubResource("RectangleShape2D_vqgm3")
+debug_color = Color(0.827451, 0, 0.03137255, 0.19607843)
 
-[node name="LedgeGrabLeft" type="Area3D" parent="." unique_id=1534373737]
+[node name="LedgeGrabLeft" type="Area2D" parent="." unique_id=1120360229]
 monitorable = false
 
-[node name="Shape" type="CollisionShape3D" parent="LedgeGrabLeft" unique_id=1626188008]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.75, 1, 0)
-shape = SubResource("BoxShape3D_x4cp5")
-debug_color = Color(0.827451, 0.835294, 0.0313726, 0.823529)
+[node name="Shape" type="CollisionShape2D" parent="LedgeGrabLeft" unique_id=278287261]
+position = Vector2(-75, -62.5)
+shape = SubResource("RectangleShape2D_vqgm3")
+debug_color = Color(0.18431373, 0.1764706, 0.8352941, 0.19607843)

@@ -1,18 +1,19 @@
 class_name FighterBase
 # For individual fighters, extend this class
 
-extends CharacterBody3D
+extends CharacterBody2D
 
-# --- Hitbox Sides ---
-@onready var _collision_shape: CollisionShape3D = $HitboxRoot
+# --- Hitbox Bounds ---
+# HitboxRoot should be a CollisionShape2D with a RectangleShape2D
+@onready var _collision_shape: CollisionShape2D = $HitboxRoot
 
 func _get_hitbox_bounds() -> Dictionary:
-	var shape := _collision_shape.shape as BoxShape3D
+	var shape  := _collision_shape.shape as RectangleShape2D
 	var origin := _collision_shape.global_position
 	return {
 		"left":   origin.x - shape.size.x / 2.0,
 		"right":  origin.x + shape.size.x / 2.0,
-		"bottom": origin.y - shape.size.y / 2.0,
+		"bottom": origin.y + shape.size.y / 2.0,  # +Y is down in 2D
 	}
 
 # --- Exports ---
@@ -21,7 +22,7 @@ func _get_hitbox_bounds() -> Dictionary:
 # --- State Machine ---
 enum State {
 	GROUNDED,    # On the ground, accepting normal input
-	JUMPSQUAT,   # 3-frame pre-jump window
+	JUMPSQUAT,   # Pre-jump window (jumpsquat_frames long)
 	AIRBORNE,    # In the air
 	HITSTUN,     # Launched — limited input
 	LEDGE_HANG,  # Hanging on a ledge
@@ -34,8 +35,8 @@ signal landed
 signal left_ground
 
 # --- Physics State ---
-var vel: Vector3 = Vector3.ZERO
-var floor_normal: Vector3 = Vector3.UP
+var vel: Vector2 = Vector2.ZERO
+var floor_normal: Vector2 = Vector2.UP
 var grounded: bool = false
 var facing: int = 1        # 1 = right, -1 = left. Only updates on ground.
 
@@ -61,7 +62,6 @@ var _down_was_pressed: bool = false
 var _down_tapped: bool = false
 const DOWN_TAP_THRESHOLD := 12
 
-
 # --- Balloon Knockback Lookup ---
 # Community-verified raw->effective hitstun mapping above 32 frames.
 # No closed-form formula exists; intermediate values are lerped.
@@ -75,9 +75,17 @@ const _BALLOON_TABLE: Array[Vector2] = [
 	Vector2(120, 60),
 ]
 
+# --- 3D Visual Node ---
+# Assign the root of the 3D visual in the inspector.
+# Its position will be synced to this body every frame.
+@export var visual_3d: Node3D
+
 var _soft_platforms: Array = []
 
 func _ready() -> void:
+	if stats == null:
+		push_error("[FighterBase] 'stats' is not assigned in the inspector.")
+		return
 	double_jumps_remaining = stats.max_double_jumps
 	floor_stop_on_slope    = true
 	floor_max_angle        = deg_to_rad(46)
@@ -92,7 +100,15 @@ func _physics_process(delta: float) -> void:
 	_tick_input()
 	_tick_state(delta)
 	_apply_move()
+	_sync_visual()
 	_debug_print()
+
+# --- Sync 3D visual to 2D body position ---
+func _sync_visual() -> void:
+	if visual_3d == null:
+		return
+	visual_3d.global_position = Vector3(global_position.x, -global_position.y, 0.0)
+	# Y is negated because 2D +Y is down, 3D +Y is up.
 
 # --- Input ---
 func _tick_input() -> void:
@@ -164,22 +180,23 @@ func _state_airborne(delta: float) -> void:
 	vel.x = move_toward(vel.x, target_x, stats.air_speed * stats.air_acceleration)
 
 	# Fastfall
-	if _down_tapped and not fastfalling and vel.y <= 0.0:
+	if _down_tapped and not fastfalling and vel.y >= 0.0:
+		# In 2D +Y is down, so falling = positive Y velocity
 		fastfalling = true
 		print("[FASTFALL] Started")
 
-	# Gravity
+	# Gravity (+Y = down in 2D)
 	if fastfalling:
-		vel.y = -stats.fast_fall_speed
+		vel.y = stats.fast_fall_speed
 	else:
-		vel.y -= stats.gravity * delta
-		vel.y  = maxf(vel.y, -stats.fall_speed)
+		vel.y += stats.gravity * delta
+		vel.y  = minf(vel.y, stats.fall_speed)
 
 	# Double jump
 	if _jump_buffer > 0 and double_jumps_remaining > 0:
 		_jump_buffer           = 0
 		double_jumps_remaining -= 1
-		vel.y                  = stats.double_jump_velocity
+		vel.y                  = -stats.double_jump_velocity  # -Y = up in 2D
 		fastfalling            = false
 		print("[JUMP] Double jump used. Remaining: ", double_jumps_remaining)
 
@@ -189,11 +206,12 @@ func _state_hitstun(delta: float) -> void:
 	hitstun_frames_remaining -= 1
 
 	# Knockback decay
+	# TODO: add kb_decay to FighterStats
 	vel.x *= (1.0 - stats.kb_decay)
 
 	# Gravity during tumble
-	vel.y -= stats.gravity * delta
-	vel.y  = maxf(vel.y, -stats.fall_speed)
+	vel.y += stats.gravity * delta
+	vel.y  = minf(vel.y, stats.fall_speed)
 
 	# Cancel windows (Ultimate values)
 	if _hitstun_elapsed >= 40 and Input.is_action_just_pressed("airdodge"):
@@ -201,7 +219,7 @@ func _state_hitstun(delta: float) -> void:
 		_set_state(State.AIRBORNE)
 		return
 	if _hitstun_elapsed >= 45 and Input.is_action_just_pressed("jump"):
-		vel.y                  = stats.double_jump_velocity
+		vel.y                  = -stats.double_jump_velocity
 		double_jumps_remaining -= 1
 		print("[HITSTUN] Cancelled via aerial at frame ", _hitstun_elapsed)
 		_set_state(State.AIRBORNE)
@@ -213,11 +231,11 @@ func _state_hitstun(delta: float) -> void:
 
 # --- State: LEDGE_HANG ---
 func _state_ledge_hang(_delta: float) -> void:
-	vel = Vector3.ZERO
+	vel = Vector2.ZERO
 
 	if _jump_buffer > 0:
 		_jump_buffer           = 0
-		vel.y                  = stats.jump_velocity
+		vel.y                  = -stats.jump_velocity  # -Y = up in 2D
 		double_jumps_remaining = stats.max_double_jumps
 		print("[LEDGE] Jumped off ledge")
 		_set_state(State.AIRBORNE)
@@ -230,7 +248,8 @@ func _begin_jumpsquat() -> void:
 	_set_state(State.JUMPSQUAT)
 
 func _launch_jump() -> void:
-	vel.y                  = stats.jump_velocity if _full_hop_intended else stats.short_hop_velocity
+	var jump_vel := stats.jump_velocity if _full_hop_intended else stats.short_hop_velocity
+	vel.y                  = -jump_vel  # -Y = up in 2D
 	fastfalling            = false
 	double_jumps_remaining = stats.max_double_jumps
 	print("[JUMP] Launched — full hop: ", _full_hop_intended, "  vel.y: ", vel.y)
@@ -239,7 +258,7 @@ func _launch_jump() -> void:
 # --- Movement Resolution ---
 func _apply_move() -> void:
 	var was_grounded := grounded
-	
+
 	_update_soft_platform_mask()
 
 	floor_snap_length = 0.15 if (state == State.GROUNDED or state == State.JUMPSQUAT) else 0.0
@@ -248,8 +267,7 @@ func _apply_move() -> void:
 	vel = velocity
 
 	grounded     = is_on_floor()
-	floor_normal = get_floor_normal() if grounded else Vector3.UP
-	global_position.z = 0.0
+	floor_normal = get_floor_normal() if grounded else Vector2.UP
 
 	if grounded and not was_grounded:
 		_on_land()
@@ -257,12 +275,12 @@ func _apply_move() -> void:
 		left_ground.emit()
 		print("[GROUND] Left ground")
 		_set_state(State.AIRBORNE)
-		
+
 	_update_soft_platform_mask()
 
 func _update_soft_platform_mask() -> void:
-	var holding_down := Input.is_action_pressed("move_down")
-	var bounds := _get_hitbox_bounds()
+	var holding_down  := Input.is_action_pressed("move_down")
+	var bounds        := _get_hitbox_bounds()
 
 	var should_collide := true
 	if holding_down:
@@ -272,6 +290,7 @@ func _update_soft_platform_mask() -> void:
 			var p_top:   float = platform.top_y
 			var p_left:  float = platform.left_x
 			var p_right: float = platform.right_x
+			# In 2D +Y is down, so "above the platform" means bottom < top_y
 			if bounds.bottom < p_top:
 				should_collide = false
 				floor_snap_length = 0.0
@@ -284,7 +303,6 @@ func _update_soft_platform_mask() -> void:
 				break
 
 	set_collision_mask_value(2, should_collide)
-
 
 func _on_land() -> void:
 	fastfalling              = false
@@ -309,7 +327,8 @@ func receive_hit(percent: float, damage: float, bkb: float, kbg: float, angle_de
 	var hitstun := _calc_hitstun(kb)
 	var angle   := deg_to_rad(angle_deg)
 
-	vel = Vector3(cos(angle), sin(angle), 0.0) * (kb * 0.03)
+	# cos = X, -sin = Y because 2D +Y is down and angle 90 should mean upward
+	vel = Vector2(cos(angle), -sin(angle)) * (kb * 0.03)
 
 	hitstun_total_frames     = hitstun
 	hitstun_frames_remaining = hitstun
@@ -326,6 +345,7 @@ func _calc_knockback(percent: float, damage: float, bkb: float, kbg: float) -> f
 
 # --- Hitstun + Balloon Knockback ---
 func _calc_hitstun(knockback: float) -> int:
+	# TODO: add hitstun_multiplier to FighterStats
 	var raw := int(knockback * stats.hitstun_multiplier)
 	if raw <= 32:
 		return raw
@@ -354,10 +374,10 @@ func _get_input_x() -> float:
 	return Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
 
 ## Called by the ledge system when a grab is confirmed.
-func handle_ledge_grab(ledge_position: Vector3, ledge_facing: int) -> void:
+func handle_ledge_grab(ledge_position: Vector2, ledge_facing: int) -> void:
 	global_position          = ledge_position
 	facing                   = ledge_facing
-	vel                      = Vector3.ZERO
+	vel                      = Vector2.ZERO
 	hitstun_frames_remaining = 0
 	print("[LEDGE] Grabbed ledge facing ", ledge_facing)
 	_set_state(State.LEDGE_HANG)
