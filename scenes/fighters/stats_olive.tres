@@ -5,9 +5,12 @@
 [resource]
 resource_name = "Fighter Base"
 script = ExtResource("1_k6ubr")
-jump_velocity = 15.5
-short_hop_velocity = 10.0
-double_jump_velocity = 16.0
-gravity = 40.0
-fall_speed = 20.0
-fast_fall_speed = 30.0
+walk_speed = 600.0
+dash_speed = 1000.0
+air_speed = 800.0
+jump_velocity = 1550.0
+short_hop_velocity = 1000.0
+double_jump_velocity = 1600.0
+gravity = 4000.0
+fall_speed = 2000.0
+fast_fall_speed = 3000.0

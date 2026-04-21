@@ -5,16 +5,17 @@
 [ext_resource type="Script" uid="uid://c1mc3thp7164j" path="res://scenes/stages/ledge_point_left.gd" id="3_dhi2t"]
 [ext_resource type="Script" uid="uid://2qoim88c8ecq" path="res://scenes/stages/platform_soft.gd" id="3_otxmh"]
 [ext_resource type="Script" uid="uid://bw6ffwmo3x4xm" path="res://scenes/stages/ledge_point_right.gd" id="4_otbg8"]
+[ext_resource type="Script" uid="uid://bhlvhiyca5wjh" path="res://scenes/fighters/stage_visuals.gd" id="6_ej7ts"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_p75cs"]
 size = Vector2(2000, 400)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ej7ts"]
+size = Vector2(500, 100)
+
 [sub_resource type="BoxMesh" id="BoxMesh_otxmh"]
 lightmap_size_hint = Vector2i(129, 116)
 size = Vector3(20, 4, 5)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_ej7ts"]
-size = Vector2(500, 100)
 
 [sub_resource type="BoxMesh" id="BoxMesh_dhi2t"]
 size = Vector3(5, 1, 1)
@@ -31,15 +32,12 @@ script = ExtResource("2_kcd60")
 shape = SubResource("RectangleShape2D_p75cs")
 debug_color = Color(0.67451, 0.694118, 0.701961, 0.419608)
 
-[node name="MainPlatformMesh" type="MeshInstance3D" parent="Geometry/MainPlatform" unique_id=629130548]
-mesh = SubResource("BoxMesh_otxmh")
-
-[node name="LedgePointLeft" type="Marker3D" parent="Geometry/MainPlatform" unique_id=1172330619]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.5, 0)
+[node name="LedgePointLeft" type="Marker2D" parent="Geometry/MainPlatform" unique_id=1041537427]
+position = Vector2(-10, 0.5)
 script = ExtResource("3_dhi2t")
 
-[node name="LedgePointRight" type="Marker3D" parent="Geometry/MainPlatform" unique_id=1248539710]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.5, 0)
+[node name="LedgePointRight" type="Marker2D" parent="Geometry/MainPlatform" unique_id=80392809]
+position = Vector2(10, 0.5)
 script = ExtResource("4_otbg8")
 
 [node name="SoftPlatform" type="StaticBody2D" parent="Geometry" unique_id=669965720]
@@ -52,22 +50,30 @@ script = ExtResource("3_otxmh")
 position = Vector2(0, 0.4949999)
 shape = SubResource("RectangleShape2D_ej7ts")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Geometry/SoftPlatform" unique_id=1450649517]
+[node name="3D" type="Node3D" parent="." unique_id=831564609]
+
+[node name="Visuals" type="Node3D" parent="3D" unique_id=1535174060]
+script = ExtResource("6_ej7ts")
+
+[node name="MainPlatformMesh" type="MeshInstance3D" parent="3D/Visuals" unique_id=629130548]
+mesh = SubResource("BoxMesh_otxmh")
+skeleton = NodePath("../../../Geometry/MainPlatform")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="3D/Visuals" unique_id=1450649517]
 mesh = SubResource("BoxMesh_dhi2t")
+skeleton = NodePath("../../../Geometry/SoftPlatform")
 
-[node name="StageProps" type="Node3D" parent="." unique_id=831564609]
+[node name="Lighting" type="Node3D" parent="3D" unique_id=32497203]
 
-[node name="Lighting" type="Node3D" parent="StageProps" unique_id=32497203]
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="StageProps/Lighting" unique_id=1368775077]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="3D/Lighting" unique_id=1368775077]
 transform = Transform3D(1, 0, 0, 0, -0.00336853, 0.999994, 0, -0.999994, -0.00336853, 0, 8.01834, -0.0179467)
 light_color = Color(1, 0.94902, 0.823529, 1)
 light_energy = 3.101
 light_indirect_energy = 2.131
 light_volumetric_fog_energy = 1.706
 
-[node name="SpawnPoints" type="Node3D" parent="." unique_id=654138373]
+[node name="SpawnPoints" type="Node2D" parent="." unique_id=760276263]
 
-[node name="SpawnP1" type="Marker3D" parent="SpawnPoints" unique_id=969022635]
+[node name="SpawnP1" type="Marker2D" parent="SpawnPoints" unique_id=278198932]
 
-[node name="SpawnP2" type="Marker3D" parent="SpawnPoints" unique_id=1454999994]
+[node name="SpawnP2" type="Marker2D" parent="SpawnPoints" unique_id=19418539]

@@ -107,8 +107,8 @@ func _physics_process(delta: float) -> void:
 func _sync_visual() -> void:
 	if visual_3d == null:
 		return
-	visual_3d.global_position = Vector3(global_position.x, -global_position.y, 0.0)
-	# Y is negated because 2D +Y is down, 3D +Y is up.
+	visual_3d.global_position = Vector3(global_position.x / 100.0, -global_position.y / 100.0, 0.0)
+	# Y is negative because 2D +Y is down, 3D +Y is up.
 
 # --- Input ---
 func _tick_input() -> void:
@@ -397,3 +397,4 @@ func _debug_print() -> void:
 		str(snappedf(bounds.right,  0.001)),
 		str(snappedf(bounds.bottom, 0.001)),
 	])
+	print("Fighter 2D pos: ", global_position)
