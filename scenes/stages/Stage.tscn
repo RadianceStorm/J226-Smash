@@ -33,22 +33,20 @@ shape = SubResource("RectangleShape2D_p75cs")
 debug_color = Color(0.67451, 0.694118, 0.701961, 0.419608)
 
 [node name="LedgePointLeft" type="Marker2D" parent="Geometry/MainPlatform" unique_id=1041537427]
-position = Vector2(-10, 0.5)
 script = ExtResource("3_dhi2t")
 
 [node name="LedgePointRight" type="Marker2D" parent="Geometry/MainPlatform" unique_id=80392809]
-position = Vector2(10, 0.5)
 script = ExtResource("4_otbg8")
 
 [node name="SoftPlatform" type="StaticBody2D" parent="Geometry" unique_id=669965720]
-position = Vector2(5, 5)
 collision_layer = 2
 collision_mask = 0
 script = ExtResource("3_otxmh")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Geometry/SoftPlatform" unique_id=1182341992]
-position = Vector2(0, 0.4949999)
+position = Vector2(500, -500)
 shape = SubResource("RectangleShape2D_ej7ts")
+one_way_collision = true
 
 [node name="3D" type="Node3D" parent="." unique_id=831564609]
 
@@ -59,7 +57,8 @@ script = ExtResource("6_ej7ts")
 mesh = SubResource("BoxMesh_otxmh")
 skeleton = NodePath("../../../Geometry/MainPlatform")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="3D/Visuals" unique_id=1450649517]
+[node name="SoftPlatformMesh" type="MeshInstance3D" parent="3D/Visuals" unique_id=1450649517]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 5, 0)
 mesh = SubResource("BoxMesh_dhi2t")
 skeleton = NodePath("../../../Geometry/SoftPlatform")
 
@@ -75,5 +74,7 @@ light_volumetric_fog_energy = 1.706
 [node name="SpawnPoints" type="Node2D" parent="." unique_id=760276263]
 
 [node name="SpawnP1" type="Marker2D" parent="SpawnPoints" unique_id=278198932]
+position = Vector2(-500, -500)
 
 [node name="SpawnP2" type="Marker2D" parent="SpawnPoints" unique_id=19418539]
+position = Vector2(0, -500)

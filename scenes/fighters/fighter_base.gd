@@ -80,8 +80,6 @@ const _BALLOON_TABLE: Array[Vector2] = [
 # Its position will be synced to this body every frame.
 @export var visual_3d: Node3D
 
-var _soft_platforms: Array = []
-
 func _ready() -> void:
 	if stats == null:
 		push_error("[FighterBase] 'stats' is not assigned in the inspector.")
@@ -91,9 +89,6 @@ func _ready() -> void:
 	floor_max_angle        = deg_to_rad(46)
 	add_to_group("fighter")
 	call_deferred("_collect_soft_platforms")
-
-func _collect_soft_platforms() -> void:
-	_soft_platforms = get_tree().get_nodes_in_group("soft_platforms")
 
 # --- Main Loop ---
 func _physics_process(delta: float) -> void:
@@ -259,7 +254,7 @@ func _launch_jump() -> void:
 func _apply_move() -> void:
 	var was_grounded := grounded
 
-	_update_soft_platform_mask()
+	set_collision_mask_value(2, not Input.is_action_pressed("move_down"))
 
 	floor_snap_length = 0.15 if (state == State.GROUNDED or state == State.JUMPSQUAT) else 0.0
 	velocity = vel
@@ -276,33 +271,7 @@ func _apply_move() -> void:
 		print("[GROUND] Left ground")
 		_set_state(State.AIRBORNE)
 
-	_update_soft_platform_mask()
-
-func _update_soft_platform_mask() -> void:
-	var holding_down  := Input.is_action_pressed("move_down")
-	var bounds        := _get_hitbox_bounds()
-
-	var should_collide := true
-	if holding_down:
-		should_collide = false
-	else:
-		for platform in _soft_platforms:
-			var p_top:   float = platform.top_y
-			var p_left:  float = platform.left_x
-			var p_right: float = platform.right_x
-			# In 2D +Y is down, so "above the platform" means bottom < top_y
-			if bounds.bottom < p_top:
-				should_collide = false
-				floor_snap_length = 0.0
-				break
-			if bounds.left > p_right:
-				should_collide = false
-				break
-			if bounds.right < p_left:
-				should_collide = false
-				break
-
-	set_collision_mask_value(2, should_collide)
+	set_collision_mask_value(2, not Input.is_action_pressed("move_down"))
 
 func _on_land() -> void:
 	fastfalling              = false
